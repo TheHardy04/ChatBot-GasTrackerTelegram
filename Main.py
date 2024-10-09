@@ -3,19 +3,19 @@ import telepot
 from telepot.loop import MessageLoop
 from apscheduler.schedulers.background import BackgroundScheduler
 import time
-
 import os
 
 config_file_path = 'config.py'
 
+# Check if the config file exists, if not create it
 if not os.path.exists(config_file_path):
     with open(config_file_path, 'w') as config_file:
         config_file.write('''# Constants for API and Telegram bot
-API_KEY = "Your Etherscan API Key"
-TELEGRAM_TOKEN = "Your Telegram Bot Token"
-CHAT_ID = "Your Chat Id"  # to find ChatID https://api.telegram.org/bot<YourBOTToken>/getUpdates
-TIME_INTERVAL = 120  # Time interval for sending updates (in seconds)
-''')
+            API_KEY = "Your Etherscan API Key"
+            TELEGRAM_TOKEN = "Your Telegram Bot Token"
+            CHAT_ID = "Your Chat Id"  # to find ChatID https://api.telegram.org/bot<YourBOTToken>/getUpdates
+            TIME_INTERVAL = 120  # Time interval for sending updates (in seconds)
+            ''')
     print(f"{config_file_path} created. Please update it with your API_KEY, TELEGRAM_TOKEN, and CHAT_ID.")
     exit(0)
 
