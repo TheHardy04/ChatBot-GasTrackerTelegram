@@ -1,30 +1,45 @@
 import requests
 import telepot
+from telepot.loop import MessageLoop
 from apscheduler.schedulers.background import BackgroundScheduler
 import time
 
-# Fetch gas price data from the Etherscan API
+# Constants for API and Telegram bot
+API_KEY = "JR9PWKZBEUESZW11T6GZXW8YC44638RUFW"
+TELEGRAM_TOKEN = "7678891919:AAEqJhce4dV3JWMPzUwOYcS6z64aXqNcKRc"
+CHAT_ID = "7577785128"  # to find ChatID https://api.telegram.org/bot<YourBOTToken>/getUpdates
+TIME_INTERVAL = 120  # Time interval for sending updates (in seconds)
+
+# Variable to store the initial FastGasPrice for calculating the change
+initial_fast_gas_price = None
+
+
 def get_gas_data():
-    api_key = "JR9PWKZBEUESZW11T6GZXW8YC44638RUFW"
+    """
+    Fetch gas price data from the Etherscan API.
+
+    Returns:
+        tuple: (fast_gas_price, first_gas_used_ratio_rounded) if successful.
+        None: if the request fails or data is invalid.
+    """
     url = "https://api.etherscan.io/api"
     params = {
         "module": "gastracker",
         "action": "gasoracle",
-        "apikey": api_key
+        "apikey": API_KEY
     }
 
     try:
         response = requests.get(url, params=params)
-        response.raise_for_status()  # Raise an error for bad status codes
-
+        response.raise_for_status()
         data = response.json()
 
         if data["status"] == "1":
-            # Get FastGasPrice and GasUsedRatio
-            fast_gas_price = data["result"]["FastGasPrice"]
+            fast_gas_price = float(data["result"]["FastGasPrice"])
+            fast_gas_price = round(fast_gas_price, 2)
             gas_used_ratio = data["result"]["gasUsedRatio"]
 
-            # Extract the first value and round to 2 decimal places
+            # Extract and round the first GasUsedRatio value to 2 decimal places
             first_gas_used_ratio = float(gas_used_ratio.split(',')[0])
             first_gas_used_ratio_rounded = round(first_gas_used_ratio, 2)
 
@@ -36,52 +51,86 @@ def get_gas_data():
         print(f"Request error: {e}")
         return None
 
+def create_message(gas_data):
+    """
+    Create a cheerful message with gas price data, including the change in FastGasPrice.
 
-# Create the message to be sent
-def get_message(gas_data):
+    Args:
+        gas_data (tuple): The gas price data (FastGasPrice, FirstGasUsedRatio).
+
+    Returns:
+        str: A cheerful, emoji-filled message ready to send, or a failure message if data is invalid.
+    """
+    global initial_fast_gas_price
+
     if gas_data:
         fast_gas_price, first_gas_used_ratio = gas_data
-        message = (f"Fast Gas Price: {fast_gas_price} Gwei\n"
-                   f"First Gas Used Ratio: {first_gas_used_ratio}%")
+
+        if initial_fast_gas_price is None:
+            initial_fast_gas_price = fast_gas_price
+
+        # Calculate the price change
+        price_change = round(fast_gas_price - initial_fast_gas_price, 2)
+
+        # Prepare a cheerful message with emojis
+        message = (f"🚀 **Fast Gas Price Update** 🚀\n\n"
+                   f"💨 Fast Gas Price: **{fast_gas_price} Gwei**\n"
+                   f"📊 First Gas Used Ratio: **{first_gas_used_ratio}%**\n"
+                   f"🔄 Change: **{price_change} Gwei**\n\n"
+                   f"Keep an eye on the gas prices! 💡🔥")
+
         return message
-    else:
-        return "Unable to retrieve gas data."
+    return "⚠️ Oops! Unable to retrieve gas data. Please try again later!"
 
-
-# Send the message via Telegram
-def send_message():
-    chat_id = "7577785128"
+def send_telegram_message():
+    """
+    Fetch gas data, format it, and send it as a Telegram message.
+    """
     gas_data = get_gas_data()
+    message = create_message(gas_data)
 
-    # Create and send the message
-    message = get_message(gas_data)
-    bot.sendMessage(chat_id, message)
+    try:
+        bot.sendMessage(CHAT_ID, message, parse_mode='Markdown')  # Mardown for bold text
+        print(f"Message sent: {message}")
+    except telepot.exception.TelegramError as e:
+        print(f"Error sending message: {e}")
 
-    # Confirm message delivery
-    print(f"Message sent: {message}")
+# Handle incoming commands
+def handle_command(msg):
+    global initial_fast_gas_price
+
+    chat_id = msg['chat']['id']
+    command = msg['text']
+
+    if command == '/restart':
+        gas_data = get_gas_data()
+        if gas_data:
+            initial_fast_gas_price = gas_data[0]
+            bot.sendMessage(chat_id, "Bot has been restarted. Change values have been reset to 0.")
+            message = create_message(gas_data)
+            bot.sendMessage(chat_id, message,parse_mode = 'Markdown')
+            print("Change values reset by /restart command.")
+        else:
+            bot.sendMessage(chat_id, "⚠️ Failed to reset change values. Unable to retrieve gas data.")
+            print("Failed to reset change values. Unable to retrieve gas data.")
+    else:
+        bot.sendMessage(chat_id, "Unknown command. Please use /restart to reset.")
 
 
-# Set up the scheduler to run the function at a regular interval
-def run_scheduler(func, time_interval_seconds=120):
+if __name__ == '__main__':
+    # Initialize the Telegram bot
+    bot = telepot.Bot(TELEGRAM_TOKEN)
+
+    # Start the message scheduler
     scheduler = BackgroundScheduler()
-    scheduler.add_job(func, 'interval', seconds=time_interval_seconds)
+    scheduler.add_job(send_telegram_message, 'interval', seconds=TIME_INTERVAL)
     scheduler.start()
+    # Start the message loop
+    MessageLoop(bot, handle_command).run_as_thread()
 
-    # Keep the script alive
+    print("Bot is running")
     try:
         while True:
             time.sleep(1)
     except (KeyboardInterrupt, SystemExit):
         scheduler.shutdown()
-
-
-if __name__ == '__main__':
-    # Telegram bot token
-    telegram_token = "7678891919:AAEqJhce4dV3JWMPzUwOYcS6z64aXqNcKRc"
-
-    # Initialize the Telegram bot
-    bot = telepot.Bot(telegram_token)
-
-    # Set the time interval for the scheduler (in seconds)
-    time_interval = 5  # 2 minutes
-    run_scheduler(send_message, time_interval)
