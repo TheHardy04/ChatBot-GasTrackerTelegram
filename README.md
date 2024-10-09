@@ -1,6 +1,7 @@
 # Ethereum Gas Price Telegram Bot
 
 This Project is a Student Project for the course "Computer Networks" at Hanyang University, Seoul, South Korea. 
+
 It is a Telegram bot that fetches Ethereum gas price data from the Etherscan API and sends it to a user via Telegram every 2 minutes.
 
 ## Features
@@ -30,4 +31,15 @@ It is a Telegram bot that fetches Ethereum gas price data from the Etherscan API
    CHAT_ID = "Your Chat Id"  # to find ChatID https://api.telegram.org/bot<YourBOTToken>/getUpdates
    TIME_INTERVAL = 120  # Time interval for sending updates (in seconds)
    ```
+   
+## Run the bot
+
+You only have to run this command
+```bash
+python main.py
+```
+
+## Usage 
+- The bot will send a report to your telegram every 2 minutes
+- To reset the tracking of the change, use the `/restart` command.
 
