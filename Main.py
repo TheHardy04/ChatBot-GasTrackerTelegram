@@ -112,20 +112,20 @@ def handle_command(msg):
 
     chat_id = msg['chat']['id']
     command = msg['text']
-
-    if command == '/restart':
-        gas_data = get_gas_data()
-        if gas_data:
-            initial_fast_gas_price = gas_data[0]
-            bot.sendMessage(chat_id, "Bot has been restarted. Change values have been reset to 0.")
-            message = create_message(gas_data)
-            bot.sendMessage(chat_id, message,parse_mode = 'Markdown')
-            print("Change values reset by /restart command.")
+    if command.startswith('/'):
+        if command == '/restart':
+            gas_data = get_gas_data()
+            if gas_data:
+                initial_fast_gas_price = gas_data[0]
+                bot.sendMessage(chat_id, "Bot has been restarted. Change values have been reset to 0.")
+                message = create_message(gas_data)
+                bot.sendMessage(chat_id, message, parse_mode='Markdown')
+                print("Change values reset by /restart command.")
+            else:
+                bot.sendMessage(chat_id, "⚠️ Failed to reset change values. Unable to retrieve gas data.")
+                print("Failed to reset change values. Unable to retrieve gas data.")
         else:
-            bot.sendMessage(chat_id, "⚠️ Failed to reset change values. Unable to retrieve gas data.")
-            print("Failed to reset change values. Unable to retrieve gas data.")
-    else:
-        bot.sendMessage(chat_id, "Unknown command. Please use /restart to reset.")
+            bot.sendMessage(chat_id, "Unknown command. Please use /restart to reset.")
 
 
 if __name__ == '__main__':
