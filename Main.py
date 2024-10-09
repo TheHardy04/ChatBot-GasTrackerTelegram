@@ -4,11 +4,22 @@ from telepot.loop import MessageLoop
 from apscheduler.schedulers.background import BackgroundScheduler
 import time
 
-try:
-    from config import API_KEY, TELEGRAM_TOKEN, CHAT_ID, TIME_INTERVAL
-except ImportError:
-    print("Error: config.py file not found. Please ensure it exists and contains the necessary configuration.")
-    exit(1)
+import os
+
+config_file_path = 'config.py'
+
+if not os.path.exists(config_file_path):
+    with open(config_file_path, 'w') as config_file:
+        config_file.write('''# Constants for API and Telegram bot
+API_KEY = "Your Etherscan API Key"
+TELEGRAM_TOKEN = "Your Telegram Bot Token"
+CHAT_ID = "Your Chat Id"  # to find ChatID https://api.telegram.org/bot<YourBOTToken>/getUpdates
+TIME_INTERVAL = 120  # Time interval for sending updates (in seconds)
+''')
+    print(f"{config_file_path} created. Please update it with your API_KEY, TELEGRAM_TOKEN, and CHAT_ID.")
+    exit(0)
+
+from config import API_KEY, TELEGRAM_TOKEN, CHAT_ID, TIME_INTERVAL
 
 # Variable to store the initial FastGasPrice for calculating the change
 initial_fast_gas_price = None
