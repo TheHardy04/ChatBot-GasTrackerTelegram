@@ -40,6 +40,6 @@ python main.py
 ```
 
 ## Usage 
-- The bot will send a report to your telegram every 2 minutes
+- The bot will send a report to your telegram every 2 minutes 
 - To reset the tracking of the change, use the `/restart` command.
 

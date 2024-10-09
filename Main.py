@@ -4,7 +4,11 @@ from telepot.loop import MessageLoop
 from apscheduler.schedulers.background import BackgroundScheduler
 import time
 
-from config import API_KEY, TELEGRAM_TOKEN, CHAT_ID, TIME_INTERVAL
+try:
+    from config import API_KEY, TELEGRAM_TOKEN, CHAT_ID, TIME_INTERVAL
+except ImportError:
+    print("Error: config.py file not found. Please ensure it exists and contains the necessary configuration.")
+    exit(1)
 
 # Variable to store the initial FastGasPrice for calculating the change
 initial_fast_gas_price = None
