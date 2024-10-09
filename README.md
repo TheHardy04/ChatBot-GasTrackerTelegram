@@ -23,4 +23,11 @@ It is a Telegram bot that fetches Ethereum gas price data from the Etherscan API
    ```bash
    pip install -r requirements.txt
 3. Set up the `config.py` file:
+   ```python
+   # Constants for API and Telegram bot
+   API_KEY = "Your Etherscan API Key"
+   TELEGRAM_TOKEN = "Your Telegram Bot Token"
+   CHAT_ID = "Your Chat Id"  # to find ChatID https://api.telegram.org/bot<YourBOTToken>/getUpdates
+   TIME_INTERVAL = 120  # Time interval for sending updates (in seconds)
+   ```
 
