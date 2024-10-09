@@ -4,11 +4,7 @@ from telepot.loop import MessageLoop
 from apscheduler.schedulers.background import BackgroundScheduler
 import time
 
-# Constants for API and Telegram bot
-API_KEY = "JR9PWKZBEUESZW11T6GZXW8YC44638RUFW"
-TELEGRAM_TOKEN = "7678891919:AAEqJhce4dV3JWMPzUwOYcS6z64aXqNcKRc"
-CHAT_ID = "7577785128"  # to find ChatID https://api.telegram.org/bot<YourBOTToken>/getUpdates
-TIME_INTERVAL = 120  # Time interval for sending updates (in seconds)
+from config import API_KEY, TELEGRAM_TOKEN, CHAT_ID, TIME_INTERVAL
 
 # Variable to store the initial FastGasPrice for calculating the change
 initial_fast_gas_price = None
@@ -73,10 +69,10 @@ def create_message(gas_data):
         price_change = round(fast_gas_price - initial_fast_gas_price, 2)
 
         # Prepare a cheerful message with emojis
-        message = (f"🚀 **Fast Gas Price Update** 🚀\n\n"
-                   f"💨 Fast Gas Price: **{fast_gas_price} Gwei**\n"
-                   f"📊 First Gas Used Ratio: **{first_gas_used_ratio}%**\n"
-                   f"🔄 Change: **{price_change} Gwei**\n\n"
+        message = (f"🚀 *Fast Gas Price Update* 🚀\n\n"
+                   f"💨 Fast Gas Price: *{fast_gas_price} Gwei*\n"
+                   f"📊 First Gas Used Ratio: *{first_gas_used_ratio}%*\n"
+                   f"🔄 Change: *{price_change} Gwei*\n\n"
                    f"Keep an eye on the gas prices! 💡🔥")
 
         return message
@@ -129,6 +125,7 @@ if __name__ == '__main__':
     MessageLoop(bot, handle_command).run_as_thread()
 
     print("Bot is running")
+    send_telegram_message()
     try:
         while True:
             time.sleep(1)
