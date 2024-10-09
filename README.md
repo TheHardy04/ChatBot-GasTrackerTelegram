@@ -10,7 +10,7 @@ It is a Telegram bot that fetches Ethereum gas price data from the Etherscan API
 - Ability to reset change tracking with the `/restart` command.
 
 ## Prerequisites
-- Python 3.12 (The version I used)
+- Python 3.9 (The version I used)
 - A Telegram bot token from [BotFather](https://core.telegram.org/bots#botfather).
 - An API key from [Etherscan](https://etherscan.io/apis).
 
