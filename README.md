@@ -43,3 +43,8 @@ python main.py
 - The bot will send a report to your telegram every 2 minutes 
 - To reset the tracking of the change, use the `/restart` command.
 
+--- 
+
+## Acknowledgments
+- [Hanyang University](http://www.hanyang.ac.kr/)
+
